@@ -1,0 +1,41 @@
+# configs/model/llama-2-7b-4bit.yaml
+model_args:
+  pretrained_model_name_or_path: "open-unlearning/tofu_Llama-2-7b-chat-hf_full"
+  attn_implementation: "flash_attention_2"
+  torch_dtype: bfloat16
+
+tokenizer_args:
+  pretrained_model_name_or_path: "meta-llama/Llama-2-7b-hf"
+
+template_args:
+  apply_chat_template: true
+  system_prompt: "You are a helpful assistant."
+  system_prompt_with_special_tokens: |
+    <|begin_of_text|><|start_header_id|>system<|end_header_id|>
+    You are a helpful assistant.<|eot_id|>
+  user_start_tag:   "<|start_header_id|>user<|end_header_id|>\n\n"
+  user_end_tag:     "<|eot_id|>"
+  asst_start_tag:   "<|start_header_id|>assistant<|end_header_id|>\n\n"
+  asst_end_tag:     "<|eot_id|>"
+  date_string:      "10 Apr 2025"
+
+# --- Bits & Bytes 4‑bit config, no more 'quant:' subtree
+bnb_config:
+  load_in_4bit: true
+  bnb_4bit_quant_type:    nf4
+  bnb_4bit_compute_dtype: bfloat16
+  bnb_4bit_use_double_quant: true
+  bnb_4bit_quant_delay:     0
+
+# --- LoRA (PEFT) config
+peft:
+  task_type: CAUSAL_LM
+  r:          8
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+  bias: none
